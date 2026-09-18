@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Create account{% endblock %}
+{% block guest_content %}
+<div class="auth-frame">
+  <div class="auth-card">
+    <div class="auth-mark">§</div>
+    <h1 class="auth-heading">Create your account</h1>
+    <p class="auth-sub">Join the Allocation Ledger as a professor, researcher or student.</p>
+
+    <form method="post" novalidate class="form">
+      {{ form.hidden_tag() }}
+      <div class="field">
+        {{ form.full_name.label }}
+        {{ form.full_name(autofocus=true, autocomplete="name") }}
+        {% for error in form.full_name.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+      </div>
+      <div class="field">
+        {{ form.email.label }}
+        {{ form.email(autocomplete="email") }}
+        {% for error in form.email.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+      </div>
+      <div class="field">
+        {{ form.role.label }}
+        {{ form.role() }}
+      </div>
+      <div class="field">
+        {{ form.affiliated_university.label }}
+        {{ form.affiliated_university() }}
+      </div>
+      <div class="field">
+        {{ form.password.label }}
+        {{ form.password(autocomplete="new-password") }}
+        <p class="field-hint">At least 10 characters.</p>
+        {% for error in form.password.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+      </div>
+      <div class="field">
+        {{ form.confirm_password.label }}
+        {{ form.confirm_password(autocomplete="new-password") }}
+        {% for error in form.confirm_password.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+      </div>
+      {{ form.submit(class="btn btn-primary btn-block") }}
+    </form>
+
+    <p class="auth-sub" style="margin-top: 1.25rem;">
+      Already have an account? <a href="{{ url_for('auth.login') }}">Sign in</a>
+    </p>
+  </div>
+</div>
+{% endblock %}
