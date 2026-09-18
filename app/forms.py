@@ -10,13 +10,43 @@ from wtforms import (
 )
 from wtforms.validators import DataRequired, Email, EqualTo, Length, Optional, ValidationError
 
-from app.models import MANUAL_STATUSES, ORIGIN_PILLARS, ROLE_LABELS, TOPIC_STATUSES
+from app.models import MANUAL_STATUSES, ORIGIN_PILLARS, ROLE_LABELS, Stakeholder, TOPIC_STATUSES
+
+# Self-registration deliberately excludes "program_director" — that's the
+# super-admin role, and letting anyone grant it to themselves at signup would
+# be a privilege-escalation hole. New Program Directors are promoted by an
+# existing one via the Stakeholders admin screen instead.
+SELF_REGISTER_ROLE_CHOICES = [
+    (value, label) for value, label in ROLE_LABELS.items() if value != "program_director"
+]
 
 
 class LoginForm(FlaskForm):
     email = StringField("Email", validators=[DataRequired(), Email(), Length(max=255)])
     password = PasswordField("Password", validators=[DataRequired()])
     submit = SubmitField("Sign in")
+
+
+class RegistrationForm(FlaskForm):
+    full_name = StringField("Full name", validators=[DataRequired(), Length(max=200)])
+    email = StringField("Email", validators=[DataRequired(), Email(), Length(max=255)])
+    role = SelectField("Role", choices=SELF_REGISTER_ROLE_CHOICES, validators=[DataRequired()])
+    affiliated_university = StringField(
+        "Affiliated university", validators=[Optional(), Length(max=120)], default="SRH"
+    )
+    password = PasswordField(
+        "Password", validators=[DataRequired(), Length(min=10, message="Use at least 10 characters.")]
+    )
+    confirm_password = PasswordField(
+        "Confirm password",
+        validators=[DataRequired(), EqualTo("password", message="Passwords must match.")],
+    )
+    submit = SubmitField("Create account")
+
+    def validate_email(self, field):
+        email = field.data.strip().lower()
+        if Stakeholder.query.filter_by(email=email).first() is not None:
+            raise ValidationError("An account with that email already exists.")
 
 
 class ChangePasswordForm(FlaskForm):
