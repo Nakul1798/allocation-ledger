@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit macro-project' if project else 'New macro-project' }}{% endblock %}
+{% block content %}
+<header class="page-head">
+  <h1>{{ 'Edit macro-project' if project else 'New macro-project' }}</h1>
+</header>
+<div class="panel panel-narrow">
+  <form method="post" enctype="multipart/form-data" novalidate class="form">
+    {{ form.hidden_tag() }}
+    <div class="field">
+      {{ form.title.label }}
+      {{ form.title() }}
+      {% for error in form.title.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+    </div>
+    <div class="field">
+      {{ form.owner_id.label }}
+      {{ form.owner_id() }}
+    </div>
+    <div class="field">
+      {{ form.knowledge_vault.label }}
+      {{ form.knowledge_vault() }}
+      {% if project and project.knowledge_vault_original_name %}
+      <p class="field-hint">Current file: {{ project.knowledge_vault_original_name }}</p>
+      {% endif %}
+      {% for error in form.knowledge_vault.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+    </div>
+    {{ form.submit(class="btn btn-primary") }}
+  </form>
+
+  {% if project and current_user.is_admin %}
+  <form method="post" action="{{ url_for('main.project_delete', project_id=project.id) }}"
+        class="danger-form" onsubmit="return confirm('Delete this project and every topic under it?');">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="btn btn-danger">Delete project</button>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}
