@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Micro-Topics Board{% endblock %}
+{% block content %}
+<header class="page-head">
+  <h1>Database C · Micro-Topics Board</h1>
+  {% if current_user.is_admin or current_user.is_supervisor %}
+  <a class="btn btn-primary" href="{{ url_for('main.topic_new') }}">New topic</a>
+  {% endif %}
+</header>
+
+<div class="filter-row">
+  <a class="filter-pill {{ 'is-active' if not status_filter }}" href="{{ url_for('main.topic_list') }}">All</a>
+  <a class="filter-pill {{ 'is-active' if status_filter == 'OPEN' }}" href="{{ url_for('main.topic_list', status='OPEN') }}">Open</a>
+  <a class="filter-pill {{ 'is-active' if status_filter == 'In progress' }}" href="{{ url_for('main.topic_list', status='In progress') }}">In progress</a>
+  <a class="filter-pill {{ 'is-active' if status_filter == 'Completed' }}" href="{{ url_for('main.topic_list', status='Completed') }}">Completed</a>
+</div>
+
+<div class="panel panel-full">
+  <table class="data-table">
+    <thead><tr><th>Title</th><th>Macro-project</th><th>Origin pillar</th><th>Status</th><th>Student</th><th>Report</th><th></th></tr></thead>
+    <tbody>
+      {% for t in topics %}
+      <tr>
+        <td>{{ t.title }}</td>
+        <td><a href="{{ url_for('main.project_detail', project_id=t.project_id) }}">{{ t.project.title }}</a></td>
+        <td>{{ t.origin_pillar }}</td>
+        <td><span class="chip chip-{{ t.status|replace(' ', '-')|lower }}">{{ t.status }}</span></td>
+        <td>{{ t.assigned_student.full_name if t.assigned_student else '—' }}</td>
+        <td>{% if t.final_pdf_filename %}<a href="{{ url_for('main.download_file', stored_path=t.final_pdf_filename) }}">PDF</a>{% else %}—{% endif %}</td>
+        <td class="row-actions">
+          {% if current_user.is_admin or (current_user.is_supervisor and t.project.owner_id == current_user.id) %}
+          <a href="{{ url_for('main.topic_edit', topic_id=t.id) }}">Edit</a>
+          {% endif %}
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="7" class="empty-row">No topics match this filter.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
