@@ -4,10 +4,35 @@ from flask import Blueprint, current_app, flash, redirect, render_template, requ
 from flask_login import current_user, login_required, login_user, logout_user
 
 from app import db
-from app.forms import ChangePasswordForm, LoginForm
+from app.forms import ChangePasswordForm, LoginForm, RegistrationForm
 from app.models import Stakeholder
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
+
+
+@auth_bp.route("/register", methods=["GET", "POST"])
+def register():
+    if current_user.is_authenticated:
+        return redirect(url_for("main.dashboard"))
+
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        user = Stakeholder(
+            full_name=form.full_name.data.strip(),
+            email=form.email.data.strip().lower(),
+            role=form.role.data,
+            affiliated_university=(form.affiliated_university.data or "SRH").strip(),
+            manual_status="ACTIVE",
+        )
+        user.set_password(form.password.data)
+        db.session.add(user)
+        db.session.commit()
+
+        login_user(user, remember=False)
+        flash(f"Welcome, {user.full_name.split()[0]}. Your account has been created.", "success")
+        return redirect(url_for("main.dashboard"))
+
+    return render_template("auth/register.html", form=form)
 
 
 @auth_bp.route("/login", methods=["GET", "POST"])
