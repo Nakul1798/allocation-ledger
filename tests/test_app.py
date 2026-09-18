@@ -253,3 +253,75 @@ def test_rejects_non_pdf_upload(app, client):
     assert resp.status_code == 200
     with app.app_context():
         assert MacroProject.query.filter_by(title="Bad Upload Project").count() == 0
+
+
+def test_registration_creates_account_and_logs_in(app, client):
+    resp = client.get("/auth/register")
+    token = _extract_csrf(resp.data)
+    resp = client.post(
+        "/auth/register",
+        data={
+            "full_name": "New Student",
+            "email": "new.student@srh.de",
+            "role": "student",
+            "affiliated_university": "SRH",
+            "password": "brandnewpassword",
+            "confirm_password": "brandnewpassword",
+            "csrf_token": token,
+        },
+        follow_redirects=True,
+    )
+    assert resp.status_code == 200
+    assert b"Sign out" in resp.data or b"Overview" in resp.data
+
+    with app.app_context():
+        user = Stakeholder.query.filter_by(email="new.student@srh.de").first()
+        assert user is not None
+        assert user.role == "student"
+        assert user.check_password("brandnewpassword")
+
+
+def test_registration_rejects_duplicate_email(app, client):
+    email, _password = make_admin(app, email="taken@srh.de")
+
+    resp = client.get("/auth/register")
+    token = _extract_csrf(resp.data)
+    resp = client.post(
+        "/auth/register",
+        data={
+            "full_name": "Someone Else",
+            "email": email,
+            "role": "student",
+            "affiliated_university": "SRH",
+            "password": "anotherpassword1",
+            "confirm_password": "anotherpassword1",
+            "csrf_token": token,
+        },
+        follow_redirects=True,
+    )
+    assert resp.status_code == 200
+    assert b"already exists" in resp.data
+    with app.app_context():
+        assert Stakeholder.query.filter_by(email=email).count() == 1
+
+
+def test_registration_cannot_grant_program_director_role(app, client):
+    resp = client.get("/auth/register")
+    token = _extract_csrf(resp.data)
+    resp = client.post(
+        "/auth/register",
+        data={
+            "full_name": "Sneaky Signup",
+            "email": "sneaky@srh.de",
+            "role": "program_director",
+            "affiliated_university": "SRH",
+            "password": "sneakypassword1",
+            "confirm_password": "sneakypassword1",
+            "csrf_token": token,
+        },
+        follow_redirects=True,
+    )
+    assert resp.status_code == 200
+    with app.app_context():
+        user = Stakeholder.query.filter_by(email="sneaky@srh.de").first()
+        assert user is None
