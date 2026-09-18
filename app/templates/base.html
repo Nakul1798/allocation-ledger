@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Allocation Ledger{% endblock %} · Thesis Allocation</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="{% if current_user.is_authenticated %}has-shell{% else %}no-shell{% endif %}">
+
+{% if current_user.is_authenticated %}
+<div class="shell">
+  <aside class="rail">
+    <div class="rail-brand">
+      <span class="rail-mark">§</span>
+      <span class="rail-title">Allocation<br>Ledger</span>
+    </div>
+    <nav class="rail-nav">
+      <a href="{{ url_for('main.dashboard') }}" class="{{ 'is-active' if request.endpoint == 'main.dashboard' }}">Overview</a>
+      <a href="{{ url_for('main.stakeholder_list') }}" class="{{ 'is-active' if request.endpoint and request.endpoint.startswith('main.stakeholder') }}">Stakeholders</a>
+      <a href="{{ url_for('main.project_list') }}" class="{{ 'is-active' if request.endpoint and request.endpoint.startswith('main.project') }}">Macro-Projects</a>
+      <a href="{{ url_for('main.topic_list') }}" class="{{ 'is-active' if request.endpoint and request.endpoint.startswith('main.topic') }}">Micro-Topics Board</a>
+    </nav>
+    <div class="rail-foot">
+      <div class="rail-user">
+        <span class="rail-user-name">{{ current_user.full_name }}</span>
+        <span class="rail-user-role">{{ current_user.role_label }}</span>
+      </div>
+      <a class="rail-link" href="{{ url_for('auth.change_password') }}">Change password</a>
+      <form method="post" action="{{ url_for('auth.logout') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="rail-signout">Sign out</button>
+      </form>
+    </div>
+  </aside>
+
+  <main class="stage">
+    {% include "_flashes.html" %}
+    {% block content %}{% endblock %}
+  </main>
+</div>
+{% else %}
+  {% include "_flashes.html" %}
+  {% block guest_content %}{% endblock %}
+{% endif %}
+
+</body>
+</html>
