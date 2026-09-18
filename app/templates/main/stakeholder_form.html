@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit stakeholder' if stakeholder else 'Add stakeholder' }}{% endblock %}
+{% block content %}
+<header class="page-head">
+  <h1>{{ 'Edit stakeholder' if stakeholder else 'Add stakeholder' }}</h1>
+</header>
+<div class="panel panel-narrow">
+  <form method="post" novalidate class="form">
+    {{ form.hidden_tag() }}
+    <div class="field">
+      {{ form.full_name.label }}
+      {{ form.full_name() }}
+      {% for error in form.full_name.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+    </div>
+    <div class="field">
+      {{ form.email.label }}
+      {{ form.email() }}
+      {% for error in form.email.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+    </div>
+    <div class="field">
+      {{ form.role.label }}
+      {{ form.role() }}
+    </div>
+    <div class="field">
+      {{ form.affiliated_university.label }}
+      {{ form.affiliated_university() }}
+    </div>
+    <div class="field">
+      {{ form.active_capacity_limit.label }}
+      {{ form.active_capacity_limit() }}
+      <p class="field-hint">{{ form.active_capacity_limit.description }}</p>
+      {% for error in form.active_capacity_limit.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+    </div>
+    <div class="field">
+      {{ form.manual_status.label }}
+      {{ form.manual_status() }}
+    </div>
+    <div class="field">
+      {{ form.password.label }}
+      {{ form.password() }}
+      <p class="field-hint">{{ form.password.description }}</p>
+      {% for error in form.password.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+    </div>
+    {{ form.submit(class="btn btn-primary") }}
+  </form>
+
+  {% if stakeholder and current_user.is_admin and stakeholder.id != current_user.id %}
+  <form method="post" action="{{ url_for('main.stakeholder_delete', stakeholder_id=stakeholder.id) }}"
+        class="danger-form" onsubmit="return confirm('Remove this stakeholder from the directory?');">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="btn btn-danger">Remove stakeholder</button>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}
