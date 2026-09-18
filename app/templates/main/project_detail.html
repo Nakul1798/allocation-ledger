@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}{{ project.title }}{% endblock %}
+{% block content %}
+<header class="page-head">
+  <h1>{{ project.title }}</h1>
+  {% if current_user.is_admin or (current_user.is_supervisor and project.owner_id == current_user.id) %}
+  <a class="btn btn-secondary" href="{{ url_for('main.project_edit', project_id=project.id) }}">Edit</a>
+  {% endif %}
+</header>
+
+<section class="stat-grid stat-grid-tight">
+  <div class="stat-tile"><span class="stat-num">{{ project.owner.full_name }}</span><span class="stat-label">Owner</span></div>
+  <div class="stat-tile"><span class="stat-num">{{ project.topics|length }}</span><span class="stat-label">Linked topics</span></div>
+  <div class="stat-tile"><span class="stat-num">{{ project.completion_velocity }}%</span><span class="stat-label">Completion velocity</span></div>
+</section>
+
+<section class="panel">
+  <h2>Knowledge Vault</h2>
+  {% if project.knowledge_vault_filename %}
+  <p class="panel-note">
+    <a href="{{ url_for('main.download_file', stored_path=project.knowledge_vault_filename) }}">{{ project.knowledge_vault_original_name or 'Download PDF' }}</a>
+  </p>
+  {% else %}
+  <p class="panel-note">No file uploaded yet.</p>
+  {% endif %}
+</section>
+
+<section class="panel panel-full">
+  <div class="panel-head-row">
+    <h2>Linked micro-topics</h2>
+    {% if current_user.is_admin or (current_user.is_supervisor and project.owner_id == current_user.id) %}
+    <a class="btn btn-primary btn-small" href="{{ url_for('main.topic_new') }}">Add topic</a>
+    {% endif %}
+  </div>
+  <table class="data-table">
+    <thead><tr><th>Title</th><th>Origin pillar</th><th>Status</th><th>Student</th></tr></thead>
+    <tbody>
+      {% for t in project.topics %}
+      <tr>
+        <td><a href="{{ url_for('main.topic_edit', topic_id=t.id) }}">{{ t.title }}</a></td>
+        <td>{{ t.origin_pillar }}</td>
+        <td><span class="chip chip-{{ t.status|replace(' ', '-')|lower }}">{{ t.status }}</span></td>
+        <td>{{ t.assigned_student.full_name if t.assigned_student else '—' }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" class="empty-row">No topics linked yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}
