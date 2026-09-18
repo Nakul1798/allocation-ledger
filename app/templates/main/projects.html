@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Macro-Projects{% endblock %}
+{% block content %}
+<header class="page-head">
+  <h1>Database B · Macro-Projects</h1>
+  {% if current_user.is_admin or current_user.is_supervisor %}
+  <a class="btn btn-primary" href="{{ url_for('main.project_new') }}">New macro-project</a>
+  {% endif %}
+</header>
+
+<div class="panel panel-full">
+  <table class="data-table">
+    <thead><tr><th>Title</th><th>Owner</th><th>Topics</th><th>Completion velocity</th><th>Vault</th></tr></thead>
+    <tbody>
+      {% for p in projects %}
+      <tr>
+        <td><a href="{{ url_for('main.project_detail', project_id=p.id) }}">{{ p.title }}</a></td>
+        <td>{{ p.owner.full_name }}</td>
+        <td class="mono">{{ p.topics|length }}</td>
+        <td>
+          <div class="velocity-track"><div class="velocity-fill" style="width: {{ p.completion_velocity }}%"></div></div>
+          <span class="mono velocity-num">{{ p.completion_velocity }}%</span>
+        </td>
+        <td>{% if p.knowledge_vault_filename %}<a href="{{ url_for('main.download_file', stored_path=p.knowledge_vault_filename) }}">PDF</a>{% else %}—{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
