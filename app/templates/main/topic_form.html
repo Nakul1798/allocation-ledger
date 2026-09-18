@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit topic' if topic else 'New topic' }}{% endblock %}
+{% block content %}
+<header class="page-head">
+  <h1>{{ 'Edit topic' if topic else 'New topic' }}</h1>
+</header>
+<div class="panel panel-narrow">
+  <form method="post" enctype="multipart/form-data" novalidate class="form">
+    {{ form.hidden_tag() }}
+    <div class="field">
+      {{ form.title.label }}
+      {{ form.title(rows=3) }}
+      {% for error in form.title.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+    </div>
+    <div class="field">
+      {{ form.origin_pillar.label }}
+      {{ form.origin_pillar() }}
+    </div>
+    <div class="field">
+      {{ form.status.label }}
+      {{ form.status() }}
+    </div>
+    <div class="field">
+      {{ form.project_id.label }}
+      {{ form.project_id() }}
+    </div>
+    <div class="field">
+      {{ form.assigned_student_id.label }}
+      {{ form.assigned_student_id() }}
+    </div>
+    <div class="field">
+      {{ form.final_pdf.label }}
+      {{ form.final_pdf() }}
+      {% if topic and topic.final_pdf_original_name %}
+      <p class="field-hint">Current file: {{ topic.final_pdf_original_name }}</p>
+      {% endif %}
+      {% for error in form.final_pdf.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+    </div>
+    {{ form.submit(class="btn btn-primary") }}
+  </form>
+
+  {% if topic and (current_user.is_admin or (current_user.is_supervisor and topic.project.owner_id == current_user.id)) %}
+  <form method="post" action="{{ url_for('main.topic_delete', topic_id=topic.id) }}"
+        class="danger-form" onsubmit="return confirm('Remove this topic from the board?');">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="btn btn-danger">Remove topic</button>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}
