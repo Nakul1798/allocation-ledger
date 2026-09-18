@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Overview{% endblock %}
+{% block content %}
+<header class="page-head">
+  <h1>Overview</h1>
+  <p class="page-sub">Signed in as {{ current_user.full_name }} — {{ current_user.role_label }}</p>
+</header>
+
+<section class="stat-grid">
+  <div class="stat-tile">
+    <span class="stat-num">{{ stakeholder_count }}</span>
+    <span class="stat-label">Stakeholders</span>
+  </div>
+  <div class="stat-tile">
+    <span class="stat-num">{{ project_count }}</span>
+    <span class="stat-label">Macro-projects</span>
+  </div>
+  <div class="stat-tile">
+    <span class="stat-num">{{ total_topics }}</span>
+    <span class="stat-label">Micro-topics</span>
+  </div>
+  <div class="stat-tile">
+    <span class="stat-num">{{ open_count }}</span>
+    <span class="stat-label">Open</span>
+  </div>
+  <div class="stat-tile">
+    <span class="stat-num">{{ in_progress_count }}</span>
+    <span class="stat-label">In progress</span>
+  </div>
+  <div class="stat-tile">
+    <span class="stat-num">{{ completed_count }}</span>
+    <span class="stat-label">Completed</span>
+  </div>
+</section>
+
+{% if overloaded %}
+<section class="panel">
+  <h2>Capacity flags</h2>
+  <p class="panel-note">Supervisors currently at or above their active capacity limit.</p>
+  <table class="data-table">
+    <thead><tr><th>Supervisor</th><th>Role</th><th>Active load</th><th>Limit</th></tr></thead>
+    <tbody>
+      {% for s in overloaded %}
+      <tr>
+        <td><a href="{{ url_for('main.stakeholder_edit', stakeholder_id=s.id) }}">{{ s.full_name }}</a></td>
+        <td>{{ s.role_label }}</td>
+        <td class="mono">{{ s.active_load }}</td>
+        <td class="mono">{{ s.active_capacity_limit }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endif %}
+
+{% if current_user.role == 'student' %}
+<section class="panel">
+  <h2>Your topics</h2>
+  {% if my_topics %}
+  <table class="data-table">
+    <thead><tr><th>Topic</th><th>Macro-project</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for t in my_topics %}
+      <tr>
+        <td>{{ t.title }}</td>
+        <td>{{ t.project.title }}</td>
+        <td><span class="chip chip-{{ t.status|replace(' ', '-')|lower }}">{{ t.status }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="panel-note">No topic assigned yet.</p>
+  {% endif %}
+</section>
+{% endif %}
+{% endblock %}
