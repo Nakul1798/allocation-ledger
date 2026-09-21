@@ -74,4 +74,19 @@
   {% endif %}
 </section>
 {% endif %}
+
+<script>
+  // Auto-refresh the overview so it reflects new data (e.g. from the
+  // nightly Notion sync) without anyone needing to reload by hand.
+  // Only reloads while this tab is actually visible, so it doesn't spam
+  // requests in a background tab.
+  (function () {
+    var REFRESH_MS = 5 * 60 * 1000; // 5 minutes
+    setInterval(function () {
+      if (document.visibilityState === "visible") {
+        window.location.reload();
+      }
+    }, REFRESH_MS);
+  })();
+</script>
 {% endblock %}
