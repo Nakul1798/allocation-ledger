@@ -18,6 +18,7 @@ from app.decorators import admin_required, roles_required
 from app.forms import ProjectForm, StakeholderForm, TopicForm
 from app.models import MacroProject, MicroTopic, Stakeholder
 from app.utils import delete_upload, save_upload
+import json
 
 main_bp = Blueprint("main", __name__)
 
@@ -412,3 +413,23 @@ def download_file(stored_path):
         download_name = owning_topic.final_pdf_original_name or download_name
 
     return send_from_directory(directory, filename, as_attachment=True, download_name=download_name)
+
+
+# ---------------------------------------------------------------------------
+# Temporary diagnostic: confirms exactly what the database holds for the
+# signed-in account only (no other stakeholders' data). Safe to remove once
+# the role-mismatch investigation is done -- no writes, login-gated, and
+# reveals nothing about any account but the caller's own.
+# ---------------------------------------------------------------------------
+
+@main_bp.route("/whoami")
+@login_required
+def whoami():
+    fresh_me = db.session.get(Stakeholder, current_user.id)
+    payload = {
+        "id": fresh_me.id,
+        "email": fresh_me.email,
+        "role": fresh_me.role,
+        "manual_status": fresh_me.manual_status,
+    }
+    return f"<pre>{json.dumps(payload, indent=2)}</pre>"
