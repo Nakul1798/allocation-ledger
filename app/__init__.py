@@ -83,4 +83,25 @@ def create_app(config_name=None):
             db.create_all()
         print("Database tables ensured.")
 
+    @app.cli.command("notion-sync")
+    def notion_sync():
+        """Pull the latest Stakeholder/Project/Topic data from Notion.
+
+        Reads NOTION_TOKEN from the environment (local .env only -- never
+        committed, never read by the web app itself). Meant to be run on a
+        schedule (see README's "Local network hosting" section).
+        """
+        from pathlib import Path
+
+        from app.notion_sync import run_notion_sync, write_report
+
+        with app.app_context():
+            report = run_notion_sync(Path(app.root_path).parent)
+            path = write_report(report, Path(app.root_path).parent / "reports")
+        print(f"Notion sync done. Report: {path}")
+        if report.new_credentials:
+            print(f"{len(report.new_credentials)} new account(s) created -- see the report for passwords.")
+        if report.needs_attention:
+            print(f"{len(report.needs_attention)} item(s) need attention -- see the report.")
+
     return app
