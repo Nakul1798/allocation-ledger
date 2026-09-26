@@ -1,13 +1,20 @@
 """One-time import of stakeholders/projects/topics from the source Notion
 workspace ("Automated Organizational Memory Framework").
 
-The actual names/emails are NOT hardcoded here (this repo is public) -- they're
-passed in at deploy time via the NOTION_SEED_DATA env var (a JSON blob set
-only in Render's dashboard, never committed). This function just knows how to
-apply that payload to the three tables.
+The actual names/emails are NOT hardcoded here (this repo is public). The
+payload is supplied one of two ways:
+
+  1. The NOTION_SEED_DATA env var (a JSON blob) -- used on Render, where it's
+     set only in the dashboard, never committed.
+  2. A local notion_seed_data.json file in the project root -- used for a
+     local install where writing to a machine's .env isn't practical. Also
+     never committed (see .gitignore) since it's real directory data, not a
+     secret, but still specific to one workspace.
+
+This function just knows how to apply that payload to the three tables.
 
 Idempotent and safe to call on every boot:
-- No-ops if NOTION_SEED_DATA isn't set.
+- No-ops if neither source is present.
 - No-ops if the import has already run, detected via a macro-project title
   that only this import creates.
 """
@@ -23,16 +30,33 @@ from app.models import MacroProject, MicroTopic, Stakeholder
 # purely as an "already imported?" marker -- not meaningful otherwise.
 _SENTINEL_PROJECT_TITLE = "Automated Organizational Memory Framework"
 
+_LOCAL_SEED_FILENAME = "notion_seed_data.json"
+
+
+def _load_seed_payload():
+    raw = os.environ.get("NOTION_SEED_DATA")
+    if raw:
+        return json.loads(raw)
+
+    # Fall back to a local file next to this project (local installs, where
+    # NOTION_SEED_DATA can't easily be set as a real environment variable).
+    local_path = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))), _LOCAL_SEED_FILENAME
+    )
+    if os.path.exists(local_path):
+        with open(local_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+
+    return None
+
 
 def seed_notion_import():
-    raw = os.environ.get("NOTION_SEED_DATA")
-    if not raw:
+    payload = _load_seed_payload()
+    if payload is None:
         return
 
     if MacroProject.query.filter_by(title=_SENTINEL_PROJECT_TITLE).first() is not None:
         return  # already imported
-
-    payload = json.loads(raw)
 
     email_to_stakeholder = {}
     for row in payload.get("stakeholders", []):
