@@ -38,7 +38,7 @@ TOPIC_STATUSES = ["OPEN", "In progress", "Completed"]
 
 
 class Stakeholder(UserMixin, db.Model):
-    """Database A: Stakeholder Directory — also doubles as the login/user table."""
+    """Database A: Stakeholder Directory â also doubles as the login/user table."""
 
     __tablename__ = "stakeholders"
 
@@ -54,6 +54,11 @@ class Stakeholder(UserMixin, db.Model):
     failed_login_count = db.Column(db.Integer, nullable=False, default=0)
     locked_until = db.Column(db.DateTime, nullable=True)
     last_login_at = db.Column(db.DateTime, nullable=True)
+
+    # Set only by the Notion sync job (app/notion_sync.py); lets a repeat sync
+    # reliably match this row back to its Notion page, including when two
+    # rows share the same title. Manually-created accounts leave this null.
+    notion_page_id = db.Column(db.String(32), unique=True, nullable=True, index=True)
 
     created_at = db.Column(db.DateTime, default=utcnow)
 
@@ -121,6 +126,7 @@ class MacroProject(db.Model):
     owner_id = db.Column(db.Integer, db.ForeignKey("stakeholders.id"), nullable=False)
     knowledge_vault_filename = db.Column(db.String(400), nullable=True)
     knowledge_vault_original_name = db.Column(db.String(400), nullable=True)
+    notion_page_id = db.Column(db.String(32), unique=True, nullable=True, index=True)
     created_at = db.Column(db.DateTime, default=utcnow)
     updated_at = db.Column(db.DateTime, default=utcnow, onupdate=utcnow)
 
@@ -131,7 +137,7 @@ class MacroProject(db.Model):
 
     @property
     def completion_velocity(self):
-        """Percentage of linked topics marked Completed — computed, not stored."""
+        """Percentage of linked topics marked Completed â computed, not stored."""
         total = len(self.topics)
         if total == 0:
             return 0
@@ -155,6 +161,7 @@ class MicroTopic(db.Model):
     assigned_student_id = db.Column(db.Integer, db.ForeignKey("stakeholders.id"), nullable=True)
     final_pdf_filename = db.Column(db.String(400), nullable=True)
     final_pdf_original_name = db.Column(db.String(400), nullable=True)
+    notion_page_id = db.Column(db.String(32), unique=True, nullable=True, index=True)
     created_at = db.Column(db.DateTime, default=utcnow)
     updated_at = db.Column(db.DateTime, default=utcnow, onupdate=utcnow)
 
