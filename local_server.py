@@ -31,12 +31,16 @@ from waitress import serve
 
 from app import create_app, db
 from app.seed import seed_admin
+from app.seed_notion import seed_notion_import
 
 app = create_app(os.environ.get("FLASK_ENV", "production"))
 
 with app.app_context():
     db.create_all()
     seed_admin()
+    # One-time import from Notion, if notion_seed_data.json is present next
+    # to this file (or NOTION_SEED_DATA is set) -- no-ops once already run.
+    seed_notion_import()
 
 if __name__ == "__main__":
     host = os.environ.get("LOCAL_HOST", "0.0.0.0")
