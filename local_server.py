@@ -20,6 +20,13 @@ isn't separately configured to forward this port outward.
 
 import os
 
+from dotenv import load_dotenv
+
+# Unlike `flask <command>`, running this file directly with `python
+# local_server.py` does not auto-load a local .env file -- so do it
+# explicitly here, before anything reads os.environ.
+load_dotenv()
+
 from waitress import serve
 
 from app import create_app, db
