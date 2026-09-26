@@ -5,6 +5,7 @@ from flask import (
     abort,
     current_app,
     flash,
+    jsonify,
     redirect,
     render_template,
     request,
@@ -13,7 +14,8 @@ from flask import (
 )
 from flask_login import current_user, login_required
 
-from app import db
+from app import ai_chat, db
+from app.automations import build_dashboard_notices
 from app.decorators import admin_required, roles_required
 from app.forms import ProjectForm, StakeholderForm, TopicForm
 from app.models import MacroProject, MicroTopic, Stakeholder
@@ -30,19 +32,24 @@ main_bp = Blueprint("main", __name__)
 @main_bp.route("/")
 @login_required
 def dashboard():
-    stakeholder_count = Stakeholder.query.count()
-    project_count = MacroProject.query.count()
+    all_stakeholders = Stakeholder.query.all()
+    projects = MacroProject.query.order_by(MacroProject.title).all()
     topics = MicroTopic.query.all()
+
+    stakeholder_count = len(all_stakeholders)
+    project_count = len(projects)
     open_count = sum(1 for t in topics if t.status == "OPEN")
     in_progress_count = sum(1 for t in topics if t.status == "In progress")
     completed_count = sum(1 for t in topics if t.status == "Completed")
 
-    supervisors = [s for s in Stakeholder.query.all() if s.is_supervisor]
+    supervisors = [s for s in all_stakeholders if s.is_supervisor]
     overloaded = [s for s in supervisors if s.is_over_capacity]
 
     my_topics = []
     if current_user.role == "student":
         my_topics = MicroTopic.query.filter_by(assigned_student_id=current_user.id).all()
+
+    notices = build_dashboard_notices(projects, topics)
 
     return render_template(
         "main/dashboard.html",
@@ -54,6 +61,7 @@ def dashboard():
         total_topics=len(topics),
         overloaded=overloaded,
         my_topics=my_topics,
+        notices=notices,
     )
 
 
@@ -272,7 +280,7 @@ def topic_list():
 
 
 def _student_choices():
-    choices = [(0, "— Unassigned —")]
+    choices = [(0, "-- Unassigned --")]
     choices += [
         (s.id, f"{s.full_name} ({s.affiliated_university or 'external'})")
         for s in Stakeholder.query.filter_by(role="student").order_by(Stakeholder.full_name).all()
@@ -413,6 +421,30 @@ def download_file(stored_path):
         download_name = owning_topic.final_pdf_original_name or download_name
 
     return send_from_directory(directory, filename, as_attachment=True, download_name=download_name)
+
+
+# ---------------------------------------------------------------------------
+# AI Assistant (optional -- disabled until ANTHROPIC_API_KEY is set)
+# ---------------------------------------------------------------------------
+
+@main_bp.route("/assistant")
+@login_required
+def assistant():
+    return render_template("main/assistant.html", ai_enabled=ai_chat.is_configured())
+
+
+@main_bp.route("/assistant/ask", methods=["POST"])
+@login_required
+def assistant_ask():
+    payload = request.get_json(silent=True) or {}
+    question = (payload.get("question") or "").strip()
+    if not question:
+        return jsonify({"error": "Type a question first."}), 400
+    if len(question) > 2000:
+        return jsonify({"error": "That question is too long."}), 400
+    result = ai_chat.answer_question(question, current_user)
+    status = 200 if "answer" in result else 503
+    return jsonify(result), status
 
 
 # ---------------------------------------------------------------------------
