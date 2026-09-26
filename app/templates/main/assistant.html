@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}AI Assistant{% endblock %}
+{% block content %}
+<header class="page-head">
+  <h1>AI Assistant</h1>
+</header>
+
+{% if ai_enabled %}
+<div class="panel panel-full chat-panel">
+  <p class="panel-note">Ask about stakeholders, macro-projects, or micro-topics. It only sees what you're allowed to see.</p>
+  <div id="chat-log" class="chat-log" aria-live="polite"></div>
+  <form id="chat-form" class="chat-form">
+    <textarea id="chat-input" rows="2" placeholder="e.g. Which of my topics are still open?" required></textarea>
+    <button type="submit" class="btn btn-primary">Send</button>
+  </form>
+</div>
+<script src="{{ url_for('static', filename='js/assistant.js') }}"></script>
+{% else %}
+<div class="panel panel-full">
+  <p class="panel-note">
+    The AI assistant isn't turned on yet. Add an <code>ANTHROPIC_API_KEY</code> to your
+    <code>.env</code> file (see <code>.env.example</code>) and restart the server to enable it.
+    Get a key at <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>.
+  </p>
+</div>
+{% endif %}
+{% endblock %}
