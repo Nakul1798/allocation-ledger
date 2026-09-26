@@ -511,6 +511,84 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   margin-bottom: 10px;
 }
 
+/* ---------------- Notices (automations) ---------------- */
+
+.notice-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.notice {
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  line-height: 1.5;
+  border-left: 3px solid var(--line);
+  background: var(--line-soft);
+  color: var(--ink-soft);
+}
+.notice-success { border-left-color: var(--green); background: var(--green-wash); color: var(--ink); }
+.notice-warning { border-left-color: var(--amber); background: var(--amber-wash); color: var(--ink); }
+.notice-info { border-left-color: var(--accent); background: var(--accent-wash); color: var(--ink); }
+
+/* ---------------- AI Assistant chat ---------------- */
+
+.chat-panel { display: flex; flex-direction: column; gap: 14px; }
+.chat-log {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 200px;
+  max-height: 420px;
+  overflow-y: auto;
+  padding: 4px 2px;
+}
+.chat-msg {
+  max-width: 80%;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+.chat-msg-user {
+  align-self: flex-end;
+  background: var(--accent);
+  color: #ffffff;
+}
+.chat-msg-assistant {
+  align-self: flex-start;
+  background: var(--line-soft);
+  color: var(--ink);
+}
+.chat-msg-error {
+  align-self: flex-start;
+  background: var(--red-wash);
+  color: var(--red);
+}
+.chat-form {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+}
+.chat-form textarea {
+  flex: 1;
+  resize: vertical;
+  min-height: 44px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 14px;
+}
+
 /* ---------------- Responsive ---------------- */
 
 @media (max-width: 860px) {
