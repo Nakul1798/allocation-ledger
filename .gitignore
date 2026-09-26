@@ -8,3 +8,5 @@ instance/
 .pytest_cache/
 backups/
 reports/
+notion_seed_data.json
+notion_attachments/
