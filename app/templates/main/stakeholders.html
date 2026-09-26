@@ -2,7 +2,7 @@
 {% block title %}Stakeholders{% endblock %}
 {% block content %}
 <header class="page-head">
-  <h1>Database A · Stakeholder Directory</h1>
+  <h1>Database A - Stakeholder Directory</h1>
   {% if current_user.is_admin %}
   <a class="btn btn-primary" href="{{ url_for('main.stakeholder_new') }}">Add stakeholder</a>
   {% endif %}
@@ -19,10 +19,10 @@
       {% for s in stakeholders %}
       <tr>
         <td>{{ s.full_name }}</td>
-        <td>{{ s.role_label }}</td>
-        <td>{{ s.affiliated_university or '—' }}</td>
+        <td><span class="chip-role chip-role-{{ s.role|replace('_', '-') }}">{{ s.role_label }}</span></td>
+        <td>{{ s.affiliated_university or '--' }}</td>
         <td><span class="chip chip-{{ s.display_status|replace(' ', '-')|lower }}">{{ s.display_status }}</span></td>
-        <td class="mono">{% if s.is_supervisor and s.active_capacity_limit is not none %}{{ s.active_load }} / {{ s.active_capacity_limit }}{% else %}—{% endif %}</td>
+        <td class="mono">{% if s.is_supervisor and s.active_capacity_limit is not none %}{{ s.active_load }} / {{ s.active_capacity_limit }}{% else %}--{% endif %}</td>
         <td class="row-actions">
           {% if current_user.is_admin or current_user.id == s.id %}
           <a href="{{ url_for('main.stakeholder_edit', stakeholder_id=s.id) }}">Edit</a>
