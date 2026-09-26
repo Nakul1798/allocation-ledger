@@ -3,7 +3,7 @@
 {% block content %}
 <header class="page-head">
   <h1>Overview</h1>
-  <p class="page-sub">Signed in as {{ current_user.full_name }} — {{ current_user.role_label }}</p>
+  <p class="page-sub">Signed in as {{ current_user.full_name }} -- {{ current_user.role_label }}</p>
 </header>
 
 <section class="stat-grid">
@@ -43,7 +43,7 @@
       {% for s in overloaded %}
       <tr>
         <td><a href="{{ url_for('main.stakeholder_edit', stakeholder_id=s.id) }}">{{ s.full_name }}</a></td>
-        <td>{{ s.role_label }}</td>
+        <td><span class="chip-role chip-role-{{ s.role|replace('_', '-') }}">{{ s.role_label }}</span></td>
         <td class="mono">{{ s.active_load }}</td>
         <td class="mono">{{ s.active_capacity_limit }}</td>
       </tr>
