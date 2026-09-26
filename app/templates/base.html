@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}Allocation Ledger{% endblock %} · Thesis Allocation</title>
+  <title>{% block title %}Allocation Ledger{% endblock %} - Thesis Allocation</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body class="{% if current_user.is_authenticated %}has-shell{% else %}no-shell{% endif %}">
@@ -12,14 +12,26 @@
 <div class="shell">
   <aside class="rail">
     <div class="rail-brand">
-      <span class="rail-mark">§</span>
-      <span class="rail-title">Allocation<br>Ledger</span>
+      <span class="rail-mark">A</span>
+      <span class="rail-title">Allocation Ledger</span>
     </div>
     <nav class="rail-nav">
-      <a href="{{ url_for('main.dashboard') }}" class="{{ 'is-active' if request.endpoint == 'main.dashboard' }}">Overview</a>
-      <a href="{{ url_for('main.stakeholder_list') }}" class="{{ 'is-active' if request.endpoint and request.endpoint.startswith('main.stakeholder') }}">Stakeholders</a>
-      <a href="{{ url_for('main.project_list') }}" class="{{ 'is-active' if request.endpoint and request.endpoint.startswith('main.project') }}">Macro-Projects</a>
-      <a href="{{ url_for('main.topic_list') }}" class="{{ 'is-active' if request.endpoint and request.endpoint.startswith('main.topic') }}">Micro-Topics Board</a>
+      <a href="{{ url_for('main.dashboard') }}" class="{{ 'is-active' if request.endpoint == 'main.dashboard' }}">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1.5" y="1.5" width="6" height="6" rx="1"/><rect x="8.5" y="1.5" width="6" height="6" rx="1"/><rect x="1.5" y="8.5" width="6" height="6" rx="1"/><rect x="8.5" y="8.5" width="6" height="6" rx="1"/></svg>
+        Overview
+      </a>
+      <a href="{{ url_for('main.stakeholder_list') }}" class="{{ 'is-active' if request.endpoint and request.endpoint.startswith('main.stakeholder') }}">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="6" cy="5" r="2.25"/><path d="M1.5 14c0-2.5 2-4 4.5-4s4.5 1.5 4.5 4"/><circle cx="12" cy="6" r="1.75"/><path d="M10.5 8.3c1.8.2 3 1.4 3 3.7"/></svg>
+        Stakeholders
+      </a>
+      <a href="{{ url_for('main.project_list') }}" class="{{ 'is-active' if request.endpoint and request.endpoint.startswith('main.project') }}">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1.5 4a1 1 0 0 1 1-1h3l1.2 1.6H13a1 1 0 0 1 1 1V12a1 1 0 0 1-1 1H2.5a1 1 0 0 1-1-1V4Z"/></svg>
+        Macro-Projects
+      </a>
+      <a href="{{ url_for('main.topic_list') }}" class="{{ 'is-active' if request.endpoint and request.endpoint.startswith('main.topic') }}">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1.8 5.2 8 2l6.2 3.2L8 8.4 1.8 5.2Z"/><path d="M1.8 8.4 8 11.6l6.2-3.2"/><path d="M1.8 11.6 8 14.8l6.2-3.2"/></svg>
+        Micro-Topics Board
+      </a>
     </nav>
     <div class="rail-foot">
       <div class="rail-user">
