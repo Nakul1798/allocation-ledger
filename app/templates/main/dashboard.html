@@ -33,6 +33,18 @@
   </div>
 </section>
 
+{% if notices %}
+<section class="panel">
+  <h2>Notices</h2>
+  <p class="panel-note">Computed automatically from your current data -- nothing here is stored.</p>
+  <ul class="notice-list">
+    {% for notice in notices %}
+    <li class="notice notice-{{ notice.level }}">{{ notice.text }}</li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
 {% if overloaded %}
 <section class="panel">
   <h2>Capacity flags</h2>
