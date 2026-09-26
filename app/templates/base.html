@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>{% block title %}Allocation Ledger{% endblock %} - Thesis Allocation</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
@@ -31,6 +32,10 @@
       <a href="{{ url_for('main.topic_list') }}" class="{{ 'is-active' if request.endpoint and request.endpoint.startswith('main.topic') }}">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1.8 5.2 8 2l6.2 3.2L8 8.4 1.8 5.2Z"/><path d="M1.8 8.4 8 11.6l6.2-3.2"/><path d="M1.8 11.6 8 14.8l6.2-3.2"/></svg>
         Micro-Topics Board
+      </a>
+      <a href="{{ url_for('main.assistant') }}" class="{{ 'is-active' if request.endpoint == 'main.assistant' }}">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1.5 3.5A1.5 1.5 0 0 1 3 2h10a1.5 1.5 0 0 1 1.5 1.5V10A1.5 1.5 0 0 1 13 11.5H6l-3 2.5v-2.5H3A1.5 1.5 0 0 1 1.5 10V3.5Z"/></svg>
+        AI Assistant
       </a>
     </nav>
     <div class="rail-foot">
