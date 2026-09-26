@@ -6,3 +6,5 @@ instance/
 .env
 *.db
 .pytest_cache/
+backups/
+reports/
